@@ -1,0 +1,13 @@
+⚠️ PLACEHOLDER: Replace this with an actual audio file
+
+To add a beep sound:
+1. Download or create a notify.mp3 file
+2. Replace this file with the actual MP3 file in the public/ directory
+3. Rename it to notify.mp3
+
+Popular free sources:
+- Freesound.org
+- Zapsplat.com
+- Pixabay.com/sounds
+
+The sound will automatically play when a customer's turn is called.

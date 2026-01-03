@@ -1,0 +1,102 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Owner {
+  id            String   @id @default(cuid())
+  name          String
+  email         String   @unique
+  password      String
+  resetPassword String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now()) @updatedAt
+  shops         Shop[]
+
+  @@index([email])
+}
+
+model Shop {
+  id              String   @id @default(cuid())
+  ownerId         String   @unique
+  name            String
+  address         String
+  category        String
+  currentToken    Int      @default(0)
+  lastIssuedToken Int      @default(0)
+  lastReset       DateTime @default(now())
+  dailyServed     Int      @default(0)
+  pauseState      Boolean  @default(false)
+  avgServiceTime  Int      @default(5)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @default(now()) @updatedAt
+
+  Owner           Owner    @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  Staff           Staff[]
+  Token           Token[]
+  Counter         Counter[]
+
+  @@index([ownerId])
+  @@index([category])
+}
+
+model Staff {
+  id        String   @id @default(cuid())
+  shopId    String
+  name      String
+  email     String   @unique
+  password  String
+  counterId String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  Shop      Shop     @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  Counter   Counter? @relation(fields: [counterId], references: [id], onDelete: SetNull)
+
+  @@index([shopId])
+  @@index([email])
+  @@index([counterId])
+}
+
+model Token {
+  id          String    @id @default(cuid())
+  shopId      String
+  token       Int
+  paymentId   String?
+  phoneNumber String?
+  counterId   String?
+  status      String    @default("waiting")
+  createdAt   DateTime  @default(now())
+  servedBy    String?
+  servedAt    DateTime?
+  Shop        Shop      @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  Counter     Counter?  @relation(fields: [counterId], references: [id], onDelete: SetNull)
+
+  @@index([shopId])
+  @@index([status])
+  @@index([shopId, status])
+  @@index([shopId, createdAt])
+  @@index([shopId, token])
+  @@index([shopId, status, paymentId])
+  @@index([counterId])
+}
+
+model Counter {
+  id        String   @id @default(cuid())
+  shopId    String
+  name      String
+  number    Int
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  Shop      Shop     @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  Staff     Staff[]
+  Token     Token[]
+
+  @@unique([shopId, number])
+  @@index([shopId])
+  @@index([shopId, isActive])
+}

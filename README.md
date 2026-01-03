@@ -1,136 +1,177 @@
 # WaitLess - Queue Management System
 
-A minimal, clean React + Tailwind CSS frontend for managing queues in small shops with a simple token system.
+A comprehensive queue management solution with a React frontend and Express.js backend. WaitLess enables shop owners to manage customer queues efficiently using a token-based system, real-time updates with Socket.IO, and multi-counter support.
 
-## 🎨 Design Philosophy
+## 🎯 Features
 
-- **Minimal interface** - No animations, clean and simple
-- **Mobile-first** - Responsive on all screen sizes  
-- **Focused UI** - Shows only essential information
-- **Light color scheme** - Gray/white background with blue primary color
+### Core Functionality
+- **Token-based Queue System** - Customers receive tokens when joining queues
+- **Real-time Updates** - Socket.IO integration for live queue status
+- **Multi-Counter Support** - Multiple service counters per shop
+- **Staff Management** - Assign staff to counters
+- **QR Code Integration** - Easy customer access via QR codes
+- **Payment Integration** - Support for payment tracking
+- **Token History** - Track served tokens and service analytics
 
-## 🚀 Quick Start
-
-```bash
-# Install dependencies
-npm install
-
-# Start development server
-npm run dev
-
-# Open http://localhost:5173/customer/queue-001 or /owner/queue-001
-```
-
-## 📱 Pages
-
-### Customer Portal (`/customer/:queueId`)
-When a customer scans a QR code, they land here.
-
-**UI:**
-- Welcome message with shop name
-- If no token: "Get Token" button
-- If has token: Shows Your Token, Current Token, and Waiting people count
-- "Leave Queue" button to exit
-
-**Behavior:**
-- Click "Get Token" to join queue
-- Tokens auto-refresh every 5 seconds
-- Shows how many people are waiting ahead
-
-### Owner Dashboard (`/owner/:queueId`)
-For shop owners to manage the queue.
-
-**UI:**
-- Current Token being served
-- Next Token in queue
-- Number of people waiting
-- "Next" button to increment current token
-
-**Behavior:**
-- Click "Next" to serve the next customer
-- Simple, at-a-glance queue management
+### User Roles
+- **Owner** - Full shop and queue management
+- **Staff** - Counter operations and customer service
+- **Customers** - Join queues and track their position
 
 ## 🏗️ Project Structure
 
+### Frontend (React + Vite)
 ```
-src/
-├── App.jsx                  (Router setup)
-├── pages/
-│   ├── Customer.jsx        (Customer portal)
-│   └── Owner.jsx           (Owner dashboard)
-├── components/
-│   └── Navbar.jsx          (Layout with navbar - renamed from Card.jsx)
-├── index.css               (Global styles)
-└── main.jsx                (Entry point)
-```
-
-## 🎨 Design System
-
-### Colors
-- **Background:** #f9fafb (gray-50)
-- **Text:** #111827 (gray-900)
-- **Primary Button:** #2563eb (blue-600) → #1d4ed8 (blue-700) on hover
-- **Secondary Button:** border-gray-300 with gray-700 text
-
-### Components
-- **Navbar:** White background with shadow, "WaitLess" logo in blue
-- **Card:** White background with soft shadow, centered content, max-width 448px
-- **Buttons:** 
-  - Primary (blue): `bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md`
-  - Secondary (outline): `border border-gray-300 text-gray-700 py-2 rounded-md`
-
-## 📊 State Management
-
-Uses React `useState` for simple state:
-
-```javascript
-const [currentToken, setCurrentToken] = useState(9);
-const [myToken, setMyToken] = useState(null);
-```
-
-**Auto-refresh** simulation with `setInterval` every 5 seconds (no backend yet).
-
-## 📱 Responsive Design
-
-- **Mobile-first** approach
-- **Full width** on small screens with padding
-- **Centered content** using flexbox
-- **Touch-friendly** button sizes
-
-## 🔄 Layout Component
-
-All pages use the same Layout wrapper:
-
-```jsx
-<Layout>
-  <div className="bg-white shadow p-6 w-full max-w-sm rounded-lg text-center space-y-4">
-    {/* Page content */}
-  </div>
-</Layout>
+client/
+├── src/
+│   ├── pages/
+│   │   ├── Landing.jsx              (Home page)
+│   │   ├── Login.jsx                (Owner login)
+│   │   ├── Register.jsx             (Owner registration)
+│   │   ├── StaffLogin.jsx           (Staff authentication)
+│   │   ├── StaffRegister.jsx        (Staff registration)
+│   │   ├── Setup.jsx                (Shop setup wizard)
+│   │   ├── OwnerDashboard.jsx       (Owner queue management)
+│   │   ├── CustomerQueue.jsx        (Customer portal)
+│   │   ├── CustomerStatus.jsx       (Customer token status)
+│   │   ├── CounterPanel.jsx         (Staff counter panel)
+│   │   ├── QRPage.jsx               (QR code display)
+│   │   ├── Profile.jsx              (User profile management)
+│   │   └── TokenHistory.jsx         (Historical token data)
+│   ├── components/
+│   │   ├── Layout.jsx               (Main layout wrapper)
+│   │   ├── Button.jsx               (Reusable button)
+│   │   ├── Input.jsx                (Form input)
+│   │   ├── LoaderButton.jsx         (Button with loading state)
+│   │   ├── Sidebar.jsx              (Navigation sidebar)
+│   │   ├── QRPlaceholder.jsx        (QR code generator)
+│   │   ├── SkeletonBlock.jsx        (Loading skeleton)
+│   │   └── ui/                      (Additional UI components)
+│   ├── utils/
+│   │   ├── formValidation.js        (Form validation utilities)
+│   │   ├── toastManager.js          (Toast notifications)
+│   │   └── api.js                   (API client)
+│   └── main.jsx                     (Entry point)
+├── vite.config.js
+├── tailwind.config.js
+└── package.json
 ```
 
-The Layout provides:
-- Navbar at the top
-- Centered main content area
-- Gray background (#f9fafb)
-- Consistent height calculation
+### Backend (Express.js)
+```
+server/
+├── controllers/
+│   ├── authController.js            (Authentication logic)
+│   ├── counterController.js         (Counter operations)
+│   ├── queueController.js           (Queue management)
+│   ├── shopController.js            (Shop operations)
+│   └── staffController.js           (Staff management)
+├── routes/
+│   ├── auth.js                      (Auth endpoints)
+│   ├── counter.js                   (Counter endpoints)
+│   ├── queue.js                     (Queue endpoints)
+│   ├── shop.js                      (Shop endpoints)
+│   └── staff.js                     (Staff endpoints)
+├── middleware/
+│   └── authMiddleware.js            (JWT authentication)
+├── utils/
+│   ├── jwtUtils.js                  (JWT token utilities)
+│   ├── response.js                  (Response formatting)
+│   └── validators.js                (Input validation)
+├── prisma/
+│   ├── schema.prisma                (Database schema)
+│   └── migrations/                  (Database migrations)
+├── server.js                        (Main server file)
+└── package.json
+```
 
-## 🔌 Ready for Backend
+## 🗄️ Database Schema
 
-Currently uses mock state. To connect to a backend:
-1. Replace `useState` calls with API calls
-2. Update `setInterval` to fetch real data
-3. Add loading/error states
+### Models
+- **Owner** - Shop owner accounts with authentication
+- **Shop** - Shop information and queue state
+- **Staff** - Staff members assigned to shops
+- **Counter** - Individual service counters
+- **Token** - Customer tokens with status tracking
 
-## 📦 Dependencies
+Key fields include payment integration, service time tracking, and performance indexes for optimization.
 
+## 🚀 Getting Started
+
+### Frontend Setup
+```bash
+cd client
+npm install
+npm run dev
+```
+Frontend runs on `http://localhost:5173`
+
+### Backend Setup
+```bash
+cd server
+npm install
+npm run dev
+```
+Backend runs on `http://localhost:5000`
+
+### Database Setup
+```bash
+cd server
+npm run prisma:migrate    # Run migrations
+npm run prisma:studio     # Open Prisma Studio
+```
+
+## 📦 Tech Stack
+
+### Frontend
 - **React 19** - UI framework
-- **React Router v6** - Routing
+- **React Router v7** - Client-side routing
 - **Tailwind CSS 4** - Styling
 - **Vite** - Build tool
+- **Socket.IO Client** - Real-time communication
+- **Axios** - HTTP client
+- **Framer Motion** - Animations
+- **React Hot Toast** - Notifications
+- **QRCode.react** - QR code generation
+- **Lucide React** - Icons
+
+### Backend
+- **Express.js** - Web server
+- **Prisma** - ORM for database
+- **PostgreSQL** - Database
+- **Socket.IO** - Real-time bidirectional communication
+- **JWT** - Authentication
+- **bcrypt** - Password hashing
+- **Helmet** - Security headers
+- **Express Rate Limit** - Rate limiting
+
+## 🔐 Security Features
+
+- JWT-based authentication
+- Password hashing with bcrypt
+- CORS configuration
+- Helmet security headers
+- Rate limiting on endpoints
+- Input validation and sanitization
+
+## 📡 Real-time Features
+
+- Socket.IO integration for instant queue updates
+- Live customer position tracking
+- Real-time counter status
+- Automatic client reconnection
+
+## 🎨 UI Features
+
+- Responsive design (mobile-first)
+- Clean, minimal interface
+- Toast notifications for user feedback
+- Loading states with skeleton screens
+- QR code generation and scanning support
 
 ## 🚀 Commands
 
+### Frontend
 ```bash
 npm run dev      # Start dev server
 npm run build    # Production build
@@ -138,13 +179,66 @@ npm run preview  # Preview build
 npm run lint     # ESLint check
 ```
 
-## 📄 Notes
+### Backend
+```bash
+npm run dev               # Start with nodemon
+npm start                 # Production start
+npm run prisma:generate  # Generate Prisma client
+npm run prisma:migrate   # Run migrations
+npm run prisma:studio    # Open Prisma Studio
+```
 
-- No animations - pure, clean UI
-- No dark mode - simple light theme
-- No charts/graphs - focused on essential info
-- No login system - direct access via queue ID in URL
+## 📋 API Endpoints
+
+### Authentication
+- `POST /api/auth/owner/register` - Owner registration
+- `POST /api/auth/owner/login` - Owner login
+- `POST /api/auth/staff/register` - Staff registration
+- `POST /api/auth/staff/login` - Staff login
+
+### Shop Management
+- `GET /api/shop/:id` - Get shop details
+- `POST /api/shop` - Create shop
+- `PUT /api/shop/:id` - Update shop
+
+### Queue Management
+- `POST /api/queue/token` - Issue token
+- `GET /api/queue/:shopId/status` - Get queue status
+- `PUT /api/queue/token/:tokenId` - Update token status
+
+### Counter Management
+- `GET /api/counter/:shopId` - Get counters
+- `POST /api/counter` - Create counter
+- `PUT /api/counter/:id` - Update counter
+
+### Staff Management
+- `GET /api/staff/:shopId` - Get staff
+- `POST /api/staff` - Add staff
+- `PUT /api/staff/:id` - Update staff
+
+## 🔄 Environment Variables
+
+### Frontend
+```
+VITE_API_BASE_URL=http://localhost:5000
+```
+
+### Backend
+```
+DATABASE_URL=postgresql://...
+PORT=5000
+JWT_SECRET=your_secret_key
+```
+
+## 📝 Notes
+
+- Full end-to-end authentication system implemented
+- Database optimized with strategic indexes
+- Real-time communication via WebSockets
+- Multi-counter and multi-staff support
+- Payment integration ready
+- Token history and analytics tracking
 
 ---
 
-Built with ❤️ using React + Tailwind CSS
+Built with ❤️ using React, Express.js, and PostgreSQL
