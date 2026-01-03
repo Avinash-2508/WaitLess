@@ -6,6 +6,8 @@ import Input from '../components/Input';
 import { showSuccess, showError, showWarning } from '../utils/toastManager';
 import API, { pauseQueue, resumeQueue } from '../api';
 
+const backendURL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+
 export default function OwnerDashboard() {
   const { shopId } = useParams();
   const navigate = useNavigate();
@@ -62,7 +64,7 @@ export default function OwnerDashboard() {
   useEffect(() => {
     fetchQueueStatus();
     checkResetPassword();
-    const socket = io("http://localhost:5000");
+    const socket = io(backendURL);
     socket.on("queueUpdate", (data) => {
       if (data?.shopId === shopId) {
         setCurrentToken(data.currentToken);

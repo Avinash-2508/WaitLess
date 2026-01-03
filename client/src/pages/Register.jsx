@@ -77,17 +77,17 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
       <motion.div
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.4 }}
-        className="w-full max-w-md"
+        className="w-full max-w-xl"
       >
-        <div className="bg-white rounded-xl p-6 sm:p-8 w-full max-w-md shadow-sm border border-gray-100">
-          <div className="text-center mb-6 sm:mb-8">
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Create Account</h1>
-            <p className="text-sm sm:text-base text-gray-600">Sign up to get started</p>
+        <div className="bg-white rounded-2xl p-6 sm:p-10 w-full shadow-xl border border-gray-100">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3">Create Account</h1>
+            <p className="text-base sm:text-lg text-gray-600">Sign up to get started</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -98,50 +98,50 @@ export default function Register() {
               </div>
             )}
 
-            <Input
-              label="Full Name"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              placeholder="John Doe"
-              error={errors.name}
-              required
-              className="mb-6"
-            />
-            <Input
-              label="Email"
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="your.email@example.com"
-              error={errors.email}
-              required
-              className="mb-6"
-            />
-            <Input
-              label="Password"
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              placeholder="Minimum 6 characters"
-              error={errors.password}
-              required
-              helperText={!errors.password && "Password must be at least 6 characters long"}
-              className="mb-6"
-            />
-            <Input
-              label="Confirm Password"
-              type="password"
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              placeholder="••••••••"
-              error={errors.confirmPassword}
-              required
-              className="mb-6"
-            />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+              <Input
+                label="Full Name"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                placeholder="John Doe"
+                error={errors.name}
+                required
+                containerClassName="sm:col-span-2"
+              />
+              <Input
+                label="Email"
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="your.email@example.com"
+                error={errors.email}
+                required
+                containerClassName="sm:col-span-2"
+              />
+              <Input
+                label="Password"
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="Minimum 6 characters"
+                error={errors.password}
+                required
+                helperText={!errors.password && "Password must be at least 6 characters long"}
+              />
+              <Input
+                label="Confirm Password"
+                type="password"
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                placeholder="••••••••"
+                error={errors.confirmPassword}
+                required
+              />
+            </div>
 
             <LoaderButton
               type="submit"
@@ -149,7 +149,7 @@ export default function Register() {
               fullWidth
               isLoading={isLoading}
               loadingText="Creating Account..."
-              className="mt-8 h-12 text-base font-semibold"
+              className="mt-4 h-13 text-lg font-semibold rounded-xl shadow-md"
             >
               Create Account
             </LoaderButton>

@@ -19,8 +19,20 @@ export default function StaffRegister() {
       try {
         // Get all shops - this is a public endpoint
         const res = await API.get("/shop");
-        if (res.data && res.data.data) {
-          setShops(Array.isArray(res.data.data) ? res.data.data : []);
+
+        // Normalize possible response shapes
+        const normalizeShops = (payload) => {
+          if (Array.isArray(payload)) return payload;
+          if (Array.isArray(payload?.data)) return payload.data;
+          if (Array.isArray(payload?.data?.shops)) return payload.data.shops;
+          return [];
+        };
+
+        const shopList = normalizeShops(res.data);
+        setShops(shopList);
+
+        if (shopList.length === 0) {
+          setError("No shops available yet. Ask the owner to create one first.");
         }
       } catch (err) {
         console.error("Failed to load shops:", err.message);
@@ -69,19 +81,19 @@ export default function StaffRegister() {
 
   if (loadingShops) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-6 sm:py-12">
-        <p className="text-gray-600">Loading shops...</p>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 flex items-center justify-center px-4 py-6 sm:py-12">
+        <p className="text-gray-600 text-base">Loading shops...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-6 sm:py-12">
-      <div className="w-full max-w-md">
-        <div className="w-full p-6 sm:p-8 bg-white rounded-xl shadow-sm border border-gray-100">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 flex items-center justify-center px-4 py-6 sm:py-12">
+      <div className="w-full max-w-xl">
+        <div className="w-full p-6 sm:p-10 bg-white rounded-2xl shadow-xl border border-gray-100">
           <div className="text-center mb-6 sm:mb-8">
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Register as Staff</h1>
-            <p className="text-sm sm:text-base text-gray-600">Create your staff account</p>
+            <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3">Register as Staff</h1>
+            <p className="text-base sm:text-lg text-gray-600">Create your staff account</p>
           </div>
 
           <form onSubmit={registerStaff} className="space-y-6">
@@ -92,7 +104,7 @@ export default function StaffRegister() {
                 value={formData.shopId}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white"
+                className="w-full px-4 py-3.5 text-base border-2 border-gray-300 rounded-xl bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
               >
                 <option value="">Choose your shop...</option>
                 {shops.length > 0 ? (
@@ -108,44 +120,46 @@ export default function StaffRegister() {
               <p className="text-xs text-gray-500 mt-2">Don't see your shop? Ask your owner to create it first.</p>
             </div>
 
-            <div>
-              <label className="block text-gray-700 font-semibold mb-2">Full Name <span className="text-red-500">*</span></label>
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                placeholder="John Doe"
-                required
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all placeholder:text-gray-400"
-              />
-            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+              <div className="sm:col-span-2">
+                <label className="block text-gray-700 font-semibold mb-2">Full Name <span className="text-red-500">*</span></label>
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  placeholder="John Doe"
+                  required
+                  className="w-full px-4 py-3.5 text-base border-2 border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all placeholder:text-gray-400"
+                />
+              </div>
 
-            <div>
-              <label className="block text-gray-700 font-semibold mb-2">Email <span className="text-red-500">*</span></label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                placeholder="staff@example.com"
-                required
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all placeholder:text-gray-400"
-              />
-            </div>
+              <div className="sm:col-span-2">
+                <label className="block text-gray-700 font-semibold mb-2">Email <span className="text-red-500">*</span></label>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="staff@example.com"
+                  required
+                  className="w-full px-4 py-3.5 text-base border-2 border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all placeholder:text-gray-400"
+                />
+              </div>
 
-            <div>
-              <label className="block text-gray-700 font-semibold mb-2">Password <span className="text-red-500">*</span></label>
-              <input
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="Minimum 8 characters"
-                required
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all placeholder:text-gray-400"
-              />
-              <p className="text-xs text-gray-500 mt-2">Must contain: 8+ chars, uppercase letter, number, special character</p>
+              <div className="sm:col-span-2">
+                <label className="block text-gray-700 font-semibold mb-2">Password <span className="text-red-500">*</span></label>
+                <input
+                  type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="Minimum 8 characters"
+                  required
+                  className="w-full px-4 py-3.5 text-base border-2 border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all placeholder:text-gray-400"
+                />
+                <p className="text-xs text-gray-500 mt-2">Must contain: 8+ chars, uppercase letter, number, special character</p>
+              </div>
             </div>
 
             {error && (

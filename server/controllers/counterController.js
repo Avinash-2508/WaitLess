@@ -1,6 +1,6 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
-const { successResponse, errorResponse } = require('../utils/response');
+const { sendSuccess, sendError } = require('../utils/response');
 
 // Create a new counter for a shop
 exports.createCounter = async (req, res) => {
@@ -8,7 +8,7 @@ exports.createCounter = async (req, res) => {
     const { shopId, name, number } = req.body;
 
     if (!shopId || !name || number === undefined) {
-      return errorResponse(res, 'Shop ID, counter name, and number are required', 400);
+      return sendError(res, 'Shop ID, counter name, and number are required', 400);
     }
 
     // Verify shop belongs to logged-in owner
@@ -17,7 +17,7 @@ exports.createCounter = async (req, res) => {
     });
 
     if (!shop) {
-      return errorResponse(res, 'Shop not found or unauthorized', 404);
+      return sendError(res, 'Shop not found or unauthorized', 404);
     }
 
     // Check if counter number already exists for this shop
@@ -31,7 +31,7 @@ exports.createCounter = async (req, res) => {
     });
 
     if (existingCounter) {
-      return errorResponse(res, 'Counter number already exists for this shop', 400);
+      return sendError(res, 'Counter number already exists for this shop', 400);
     }
 
     const counter = await prisma.counter.create({
@@ -43,10 +43,10 @@ exports.createCounter = async (req, res) => {
       },
     });
 
-    successResponse(res, 'Counter created successfully', counter);
+    sendSuccess(res, 'Counter created successfully', counter);
   } catch (error) {
     console.error('❌ Create counter error:', error);
-    errorResponse(res, 'Failed to create counter', 500);
+    sendError(res, 'Failed to create counter', 500);
   }
 };
 
@@ -56,7 +56,7 @@ exports.getCountersByShop = async (req, res) => {
     const { shopId } = req.params;
 
     if (!shopId) {
-      return errorResponse(res, 'Shop ID is required', 400);
+      return sendError(res, 'Shop ID is required', 400);
     }
 
     const counters = await prisma.counter.findMany({
@@ -73,10 +73,10 @@ exports.getCountersByShop = async (req, res) => {
       },
     });
 
-    successResponse(res, 'Counters retrieved successfully', counters);
+    sendSuccess(res, 'Counters retrieved successfully', counters);
   } catch (error) {
     console.error('❌ Get counters error:', error);
-    errorResponse(res, 'Failed to retrieve counters', 500);
+    sendError(res, 'Failed to retrieve counters', 500);
   }
 };
 
@@ -87,7 +87,7 @@ exports.toggleCounter = async (req, res) => {
     const { isActive } = req.body;
 
     if (!counterId || isActive === undefined) {
-      return errorResponse(res, 'Counter ID and active status are required', 400);
+      return sendError(res, 'Counter ID and active status are required', 400);
     }
 
     // Verify counter belongs to owner's shop
@@ -99,7 +99,7 @@ exports.toggleCounter = async (req, res) => {
     });
 
     if (!counter) {
-      return errorResponse(res, 'Counter not found or unauthorized', 404);
+      return sendError(res, 'Counter not found or unauthorized', 404);
     }
 
     const updatedCounter = await prisma.counter.update({
@@ -107,10 +107,10 @@ exports.toggleCounter = async (req, res) => {
       data: { isActive },
     });
 
-    successResponse(res, 'Counter status updated successfully', updatedCounter);
+    sendSuccess(res, 'Counter status updated successfully', updatedCounter);
   } catch (error) {
     console.error('❌ Toggle counter error:', error);
-    errorResponse(res, 'Failed to update counter status', 500);
+    sendError(res, 'Failed to update counter status', 500);
   }
 };
 
@@ -120,7 +120,7 @@ exports.assignStaffToCounter = async (req, res) => {
     const { staffId, counterId } = req.body;
 
     if (!staffId) {
-      return errorResponse(res, 'Staff ID is required', 400);
+      return sendError(res, 'Staff ID is required', 400);
     }
 
     // Verify staff exists and belongs to owner's shop
@@ -132,7 +132,7 @@ exports.assignStaffToCounter = async (req, res) => {
     });
 
     if (!staff) {
-      return errorResponse(res, 'Staff not found or unauthorized', 404);
+      return sendError(res, 'Staff not found or unauthorized', 404);
     }
 
     // If counterId is provided, verify it exists and belongs to same shop
@@ -145,7 +145,7 @@ exports.assignStaffToCounter = async (req, res) => {
       });
 
       if (!counter) {
-        return errorResponse(res, 'Counter not found or does not belong to same shop', 404);
+        return sendError(res, 'Counter not found or does not belong to same shop', 404);
       }
     }
 
@@ -154,10 +154,10 @@ exports.assignStaffToCounter = async (req, res) => {
       data: { counterId: counterId || null },
     });
 
-    successResponse(res, 'Staff assigned to counter successfully', updatedStaff);
+    sendSuccess(res, 'Staff assigned to counter successfully', updatedStaff);
   } catch (error) {
     console.error('❌ Assign staff error:', error);
-    errorResponse(res, 'Failed to assign staff to counter', 500);
+    sendError(res, 'Failed to assign staff to counter', 500);
   }
 };
 
@@ -167,7 +167,7 @@ exports.deleteCounter = async (req, res) => {
     const { counterId } = req.params;
 
     if (!counterId) {
-      return errorResponse(res, 'Counter ID is required', 400);
+      return sendError(res, 'Counter ID is required', 400);
     }
 
     // Verify counter belongs to owner's shop
@@ -179,16 +179,16 @@ exports.deleteCounter = async (req, res) => {
     });
 
     if (!counter) {
-      return errorResponse(res, 'Counter not found or unauthorized', 404);
+      return sendError(res, 'Counter not found or unauthorized', 404);
     }
 
     await prisma.counter.delete({
       where: { id: counterId },
     });
 
-    successResponse(res, 'Counter deleted successfully', { id: counterId });
+    sendSuccess(res, 'Counter deleted successfully', { id: counterId });
   } catch (error) {
     console.error('❌ Delete counter error:', error);
-    errorResponse(res, 'Failed to delete counter', 500);
+    sendError(res, 'Failed to delete counter', 500);
   }
 };

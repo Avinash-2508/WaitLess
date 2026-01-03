@@ -1,14 +1,17 @@
 const jwt = require("jsonwebtoken");
+const { PrismaClient } = require("@prisma/client");
 const { extractToken } = require("../utils/jwtUtils");
 
+const prisma = new PrismaClient();
+
 /**
- * Authentication Middleware - Verify JWT token
- * Extracts token from Authorization header and verifies it
- * Sets req.ownerId if valid
+ * Authentication Middleware
+ * - Verifies JWT
+ * - Resolves user as Owner or Staff
+ * - Sets req.ownerId or req.staffId (and req.shopId for staff)
  */
-const authMiddleware = (req, res, next) => {
+const authMiddleware = async (req, res, next) => {
   try {
-    // Extract token from Authorization header
     const token = extractToken(req.headers.authorization);
 
     if (!token) {
@@ -18,30 +21,36 @@ const authMiddleware = (req, res, next) => {
       });
     }
 
-    // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.ownerId = decoded.id;
-    next();
-  } catch (err) {
-    // Handle specific JWT errors
-    if (err.name === "TokenExpiredError") {
-      return res.status(401).json({
-        success: false,
-        error: "Token expired. Please login again.",
-      });
+    const userId = decoded.id;
+
+    // Try to resolve as Owner first
+    const owner = await prisma.owner.findUnique({ where: { id: userId }, select: { id: true } });
+    if (owner) {
+      req.ownerId = owner.id;
+      return next();
     }
 
-    if (err.name === "JsonWebTokenError") {
-      return res.status(401).json({
-        success: false,
-        error: "Invalid token. Please login again.",
-      });
+    // Fallback to Staff
+    const staff = await prisma.staff.findUnique({ where: { id: userId }, select: { id: true, shopId: true } });
+    if (staff) {
+      req.staffId = staff.id;
+      req.shopId = staff.shopId;
+      return next();
     }
 
     return res.status(401).json({
       success: false,
-      error: "Authentication failed.",
+      error: "User not found. Please login again.",
     });
+  } catch (err) {
+    if (err.name === "TokenExpiredError") {
+      return res.status(401).json({ success: false, error: "Token expired. Please login again." });
+    }
+    if (err.name === "JsonWebTokenError") {
+      return res.status(401).json({ success: false, error: "Invalid token. Please login again." });
+    }
+    return res.status(401).json({ success: false, error: "Authentication failed." });
   }
 };
 

@@ -4,6 +4,8 @@ import { io } from 'socket.io-client';
 import API, { getWaitTime } from '../api';
 import { motion } from 'framer-motion';
 
+const backendURL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+
 export default function CustomerStatus() {
   const { shopId, token } = useParams();
   const [currentToken, setCurrentToken] = useState(12);
@@ -20,7 +22,7 @@ export default function CustomerStatus() {
 
   // Live socket listener for queue updates
   useEffect(() => {
-    const socket = io("http://localhost:5000");
+    const socket = io(backendURL);
 
     const fetchStatus = async () => {
       try {

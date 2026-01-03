@@ -5,6 +5,8 @@ import Button from '../components/Button';
 import { showSuccess, showError } from '../utils/toastManager';
 import API, { getCountersByShop } from "../api";
 
+const backendURL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+
 export default function CounterPanel() {
   const { shopId } = useParams();
   const navigate = useNavigate();
@@ -53,7 +55,7 @@ export default function CounterPanel() {
       setNextToken(queueData.currentToken + 1);
     });
 
-    const socket = io("http://localhost:5000");
+    const socket = io(backendURL);
     socket.on("queueUpdate", (data) => {
       if (data?.shopId === shopId) {
         setCurrentToken(data.currentToken);
